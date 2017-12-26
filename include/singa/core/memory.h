@@ -123,6 +123,7 @@ public:
     ~SmartMemPool();
     void getMaxLoad(void);
     std::pair<size_t, size_t> GetMemUsage() override;
+    void Test(void);
 protected:
     void Init();
 private:
@@ -137,16 +138,16 @@ private:
     int gc =0; //global counter each time Malloc/Free, add 1.
     int globeCounter=-1;
     int loadLogFlag =1; //record when its 1.
-    void* ptrPool = NULL;
+    void* ptrPool_normal = NULL;
+    void* ptrPool_cross =NULL;
     int idxRange = 0;
-    size_t offset = 0;
-    size_t offsetCrossItr=0; //cross iteration offset.
+    size_t offset_normal = 0;
+    size_t offset_cross = 0; //cross iteration offset.
     int maxLen =0;
     int location=0;
     vector<string> vec;
     map<int,int>Table_r2d; //full duration info, cross-iteration duration.
     map<int,int>Table_d2r;
-    //map<int,lookUpElement>Table_r2Ver;
     vector<pair<int,lookUpElement>>Vec_r2Ver; //b. replace Table_r2Ver
     map<int, pair<size_t,size_t>>Table_load; //gc, <cudaLoad, colorLoad>
     map<void*,size_t>Table_p2s; //For tracking load in Free. add when allocate, delete when deallocate.
@@ -155,6 +156,10 @@ private:
     size_t maxTotalLoad;
     size_t maxMemUsage;
     float memRatio;
+    int first_location =1 ; // this flag means only the first location for repPatternDetector is reliable.
+    int gc_start_count=0; //gc start get vec.
+    int old_location=0;
+    int old_maxLen =0;
 };
 
 #endif
