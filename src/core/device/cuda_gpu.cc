@@ -23,7 +23,6 @@
 #include <curand.h>
 #include <chrono>
 #include <iostream>
-#include <string>
 #include "singa/core/device.h"
 #include "singa/utils/cuda_utils.h"
 namespace singa {
@@ -48,7 +47,7 @@ const int kNumCudaStream = 1;
 CudaGPU::CudaGPU(int id) : Device(id, kNumCudaStream) {
   MemPoolConf conf;
   conf.add_device(id);
-  pool_ = std::make_shared<Swap>(conf);
+  pool_ = std::make_shared<CnMemPool>(conf);
   Setup();
 }
 
@@ -121,22 +120,6 @@ void CudaGPU::Free(void* ptr) {
     CUDA_CHECK(cudaSetDevice(id_));
     pool_->Free(ptr);
   }
-}
-
-void CudaGPU::Append(string blockInfo){
-    pool_->Append(blockInfo);
-}
-
-void* CudaGPU::GetRealGpuPtr(const Block* block_){
-  return nullptr;
-}
-
-void CudaGPU::SwapOut(const Block* block_){
-  
-}
-
-void CudaGPU::SwapIn(const Block* block_){
-  
 }
 
 }  // namespace singa

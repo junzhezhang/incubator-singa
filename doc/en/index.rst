@@ -15,16 +15,13 @@
    specific language governing permissions and limitations
    under the License.
 
-
-.. SINGA documentation master file, created by
-   sphinx-quickstart on Sat Jul  9 20:36:57 2016.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
 Welcome to Apache SINGA
 =======================
 
 Recent News
 -----------
+
+* **Version 1.2.0** is now available, 6 June, 2018. `Download SINGA v1.2.0 <downloads.html>`_
 
 * **Version 1.1.0** is now available, 12 Feb, 2017. `Download SINGA v1.1.0 <downloads.html>`_
 
@@ -62,32 +59,20 @@ Recent News
 
 Getting Started
 ---------------
-* Try SINGA on `AWS <https://aws.amazon.com/marketplace/pp/B01NAUAWZW>`_ or via `Docker <https://hub.docker.com/r/nusdbsystem/singa/>`_.
+* `Install SINGA <docs/installation.html>`_ via conda, apt-get, or from source.
 
-* Install SINGA via `python wheel files <./docs/installation.html#from-wheel>`_, `Debian packages <./docs/installation.html#from-debian-package>`_ or from `source <./docs/installation.html#from-source>`_.
+* Try SINGA on `AWS <https://aws.amazon.com/marketplace/pp/B01NAUAWZW>`_ or via `Docker <https://hub.docker.com/r/nusdbsystem/singa/>`_.
 
 * Refer to the `Jupyter notebooks <http://nbviewer.jupyter.org/github/apache/incubator-singa/blob/master/doc/en/docs/notebook/index.ipynb>`_ for some basic examples and the `model zoo page <./docs/model_zoo/index.html>`_ for more examples.
 
-.. |logo1| image:: _static/github.png
-   :scale: 100%
-   :align: middle
-   :target: https://github.com/apache/incubator-singa
-.. |logo2| image:: _static/awsmp.gif
-   :scale: 100%
-   :align: middle
-   :target: https://aws.amazon.com/marketplace/seller-profile?id=5bcac385-12c4-4802-aec7-351e09b77b4c
-.. |logo3| image:: _static/docker.png
-   :scale: 50%
-   :align: middle
-   :target: https://hub.docker.com/r/nusdbsystem/singa/
-.. |logo4| image:: _static/jupyter.png
+.. |logo| image:: _static/jupyter.png
    :scale: 25%
    :align: middle
    :target: http://nbviewer.jupyter.org/github/apache/incubator-singa/blob/master/doc/en/docs/notebook/index.ipynb
 
-+---------+---------+---------+---------+
-| |logo1| | |logo2| | |logo3| | |logo4| |
-+---------+---------+---------+---------+
++---------+
+| |logo|  |
++---------+
 
 Documentation
 -------------
@@ -122,8 +107,8 @@ Companies like `NetEase <http://tech.163.com/17/0602/17/CLUL016I00098GJ5.html>`_
 .. toctree::
    :hidden:
 
-   downloads
    docs/index
+   downloads
 
 .. toctree::
    :hidden:

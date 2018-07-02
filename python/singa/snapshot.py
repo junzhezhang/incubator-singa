@@ -31,15 +31,16 @@ Example usages::
 '''
 from __future__ import absolute_import
 
-from builtins import str
 from builtins import object
 from . import singa_wrap as singa
 from . import tensor
+
 
 class Snapshot(object):
     ''' Class and member functions for singa::Snapshot.
 
     '''
+
     def __init__(self, f, mode, buffer_size=10):
         '''Snapshot constructor given file name and R/W mode.
 
@@ -57,7 +58,7 @@ class Snapshot(object):
             param_name (string): name of the parameter
             param_val (Tensor): value tensor of the parameter
         '''
-        self.snapshot.Write(param_name.encode(), param_val.singa_tensor)
+        self.snapshot.Write(param_name.encode(), param_val.data)
 
     def read(self):
         '''Call read method to load all (param_name, param_val)

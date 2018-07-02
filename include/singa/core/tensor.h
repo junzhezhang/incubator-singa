@@ -36,7 +36,8 @@ typedef vector<size_t> Shape;
 /// hardcode the width of types defined in DataType
 const size_t kDataWidth[] = {sizeof(float),  sizeof(float) / 2,
                              sizeof(int),    sizeof(char),
-                             sizeof(double), sizeof(unsigned char)};
+                             sizeof(double), sizeof(unsigned char)
+                            };
 inline size_t SizeOf(DataType t) {
   static_assert(kNumDataType == sizeof(kDataWidth) / sizeof(size_t),
                 "Num of data types not match num of data width");
@@ -51,19 +52,26 @@ inline size_t SizeOf(DataType t) {
 /// Tensor.
 /// For all operations, if the result tensor is passed as an argument,
 /// then it must be set up correctly (shape, device). Otherwise, runtime error
-/// like SegmentFault would happen. Simply type/device check would be conducted.
+/// like SegmentFault would happen. Simple type/device check would be conducted.
 class Tensor {
  public:
   ~Tensor();
   Tensor();
   explicit Tensor(Shape &&shape, DataType dtype = kFloat32);
   explicit Tensor(const Shape &shape, DataType dtype = kFloat32);
-  Tensor(Shape &&shape, std::shared_ptr<Device> dev, DataType dtype = kFloat32);
-  Tensor(const Shape &shape, std::shared_ptr<Device> dev,
+
+  Tensor(Shape &&shape,
+         std::shared_ptr<Device> dev,
+         DataType dtype = kFloat32);
+  Tensor(const Shape &shape,
+         std::shared_ptr<Device> dev,
          DataType dtype = kFloat32);
 
   /// Copy Tensor to share the internal data.  No deep copy.
   Tensor(const Tensor &from);
+  /// Copy Tensor to share the internal data.  No deep copy.
+  /// For 2 tensors sharing same block but different strides.
+  Tensor(const Tensor &from, Shape &new_shape, vector<int> &new_strides);
   /// Copy Tensor to share the internal data.  No deep copy.
   Tensor(Tensor &&from);
 
@@ -87,7 +95,7 @@ class Tensor {
   void GetValue(SType *value, const size_t num) {
     CHECK(device_ == defaultDevice);
     const SType* ptr = data<SType>();
-    for(size_t i = 0; i < num; i++) value[i] = ptr[i];
+    for (size_t i = 0; i < num; i++) value[i] = ptr[i];
   }
 
   /// data type, including kFloat16, kFloat32, kInt
@@ -104,7 +112,10 @@ class Tensor {
 
   bool empty() const { return nDim() == 0; }
 
-  bool transpose() const { return transpose_; }
+  /// Check if the tensor's last stride==1
+  bool transpose() const { return (strides_.back() != 1); }
+
+  const vector<int>& strides() const { return strides_; }
 
   /// return true if the content of the tensor is initialized
   bool initailized() const {
@@ -118,20 +129,16 @@ class Tensor {
     return block_->size() / SizeOf(data_type_);
   }
 
-  /// append info for swap purpose
-  void AppendLayer() const;
-
   /// return memory size (i.e., Bytes)
   size_t MemSize() const { return block_->size(); }
 
   /// Reset the tensor shape, it may reallocate block, if MemSize() changes.
-  void Reshape(const Shape &shape);
-  void Reshape(Shape &&shape);
+  Tensor Reshape(const Shape &shape);
+  Tensor Reshape(Shape &&shape);
 
   /// Reset the shape, device, and data type as given tensor.
-  /// If block size changes, then reallocate a new block. The previous block
-  /// would
-  /// be deleted.
+  /// If block size changes, then reallocate a new block.
+  /// The previous block would be deleted.
   void ResetLike(const Tensor &t);
 
   /// Reset the data type, it would reallocate block if type changes.
@@ -158,6 +165,8 @@ class Tensor {
   /// Meta data would not be copied!
   void CopyData(const Tensor &other);
 
+  void RepeatData(vector<size_t> repeats, int axis, int total_repeats, const Tensor &other);
+
   /// Deserialize data, shape and transpose from protobuf object.
   void FromProto(const singa::TensorProto &proto);
 
@@ -168,11 +177,19 @@ class Tensor {
   /// device. If 'device' is nullptr, then clone it one the current device.
   Tensor Clone(std::shared_ptr<Device> device = nullptr) const;
 
+  Tensor Repeat(vector<size_t> repeats, int axis, std::shared_ptr<Device> device = nullptr) ;
+
   // Tensor operations
 
   /// Matrix transpose.  Valid only if shape.size() == 2.
   /// No data copy, just set the transpose_ filed of the returned tensor.
   Tensor T() const;
+
+  /// Reverse the shape vector
+  Tensor Transpose() const;
+
+  /// Change the axes
+  Tensor Transpose(const vector<size_t> &axes) const;
 
   /// Copy the meta info with data block shared.
   Tensor &operator=(const Tensor &in);
@@ -212,17 +229,36 @@ class Tensor {
   /// Return average L2 norm
   float L2() const;
 
+  //generate strides automatically if stride field is not passed
+  void generate_strides() {
+    strides_.clear();
+    if (shape_.size() == 0) {
+      strides_.push_back(1);
+      return;
+    }
+
+    size_t dim = Size();
+    int cumulative_product = 1;
+    for (size_t n = 0; n < shape_.size(); ++n) {
+      cumulative_product = cumulative_product * shape_[n];
+      strides_.push_back(dim / cumulative_product);
+    }
+  }
+
+  void set_strides(const vector<int> new_strides) {
+    strides_ = new_strides;
+  }
+
  protected:
-  bool transpose_ = false;
   DataType data_type_ = kFloat32;
   std::shared_ptr<Device> device_ = nullptr;
   /// Note: block_ is allocated in lazy manner to avoid frequent malloc/free.
   /// If you want to get an allocated Block, use block() instead of block_.
   Block *block_ = nullptr;
   Shape shape_ = {};
-};
+  vector<int> strides_ = {};
+}; //end of tensor class
 
-typedef Shape::iterator ShapeIter;
 inline size_t Product(const Shape &shape, int start = 0, size_t len = 0) {
   if (len == 0) len = shape.size();
   if (len == 0)
@@ -232,6 +268,7 @@ inline size_t Product(const Shape &shape, int start = 0, size_t len = 0) {
   for (unsigned int i = start; i < len; i++) v *= shape[i];
   return v;
 }
+
 
 inline void CheckDataTypeAndLang(const Tensor &in1, const Tensor &in2) {
   CHECK_EQ(in1.data_type(), in2.data_type());
@@ -255,6 +292,9 @@ Tensor Reshape(const Tensor &in, Shape &&s);
 void CopyDataToFrom(Tensor *dst, const Tensor &src, const size_t num,
                     const size_t dst_offset = 0, const size_t src_offset = 0);
 
+void RepeatDataToFrom(bool broadcast_flag, vector<size_t> repeats, int axis, 
+                      Tensor *dst, const Tensor &in, const size_t num);
+
 // =============Element-wise operations====================================
 Tensor Abs(const Tensor &in);
 Tensor Exp(const Tensor &in);
@@ -265,6 +305,7 @@ Tensor Sign(const Tensor &in);
 Tensor Sqrt(const Tensor &in);
 Tensor Square(const Tensor &in);
 Tensor Tanh(const Tensor &in);
+Tensor Transform(const Tensor &in);
 
 void Abs(const Tensor &in, Tensor *out);
 void Exp(const Tensor &in, Tensor *out);
@@ -275,6 +316,7 @@ void Sign(const Tensor &in, Tensor *out);
 void Sqrt(const Tensor &in, Tensor *out);
 void Square(const Tensor &in, Tensor *out);
 void Tanh(const Tensor &in, Tensor *out);
+void Transform(const Tensor &in, Tensor *out);
 
 /// Element-wise opeartion, out[i]=in[i]^x
 template <typename SType>
@@ -397,6 +439,8 @@ void MultColumn(const Tensor &v, Tensor *M);
 void MultRow(const Tensor &v, Tensor *M);
 /// Do softmax for each row. 'in' could be a 1-d or 2-d Tensor.
 Tensor SoftMax(const Tensor &in);
+
+Tensor RowMax(const Tensor &in);
 /// Do softmax for each row. 'in' could be a 1-d or 2-d Tensor.
 void SoftMax(const Tensor &in, Tensor *out);
 /// Sub column 'v' by each column of matrix M
@@ -455,11 +499,15 @@ void Mult(const SType alpha, const Tensor &A, const Tensor &B, const SType beta,
 /// each instance, t[i] could be 2 or [0, 0, 1]. If one instance could have
 /// multiple labels, then t[i] could be [1, 0, 1].
 /// The loss is computed into p.
+
 void ComputeCrossEntropy(const Tensor &p, const Tensor &t, Tensor *loss);
+
 /// Compute the dx, given prediction probability 'p' (p=softmax(x)) and
 /// the target (ground truth) labels 't'. 'p' and 't' are either 1-d vector
 /// or 2-d matrix. 'grad' has the same shape as 'p'. dx is computed into p.
+
 void SoftmaxCrossEntropyBwd(const Tensor &t, Tensor *p);
+
 
 /// Return a tensor consisting of rows ([start, end)) from 'in'. It copies the
 /// values from 'in'. 'in' ia a 2D Tensor.

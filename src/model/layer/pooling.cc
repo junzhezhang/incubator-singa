@@ -119,8 +119,6 @@ const Tensor Pooling::Forward(int flag, const Tensor& input) {
 
   output.CopyDataFromHostPtr(outptr, output.Size());
   delete[] outptr;
-  input.AppendLayer();
-  output.AppendLayer();
   return output;
 }
 
@@ -158,8 +156,6 @@ Pooling::Backward(int flag, const Tensor& grad) {
 
   dx.CopyDataFromHostPtr(dxptr, dx.Size());
   delete[] dxptr;
-  grad.AppendLayer();
-  dx.AppendLayer();
   return std::make_pair(dx, param_grad);
 }
 

@@ -1,3 +1,21 @@
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with < this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
 # Apache SINGA
 
 [![Build Status](https://travis-ci.org/apache/incubator-singa.png)](https://travis-ci.org/apache/incubator-singa)
@@ -20,7 +38,3 @@ Distributed deep learning system
 
 * [Development Mailing List](mailto:dev-subscribe@singa.incubator.apache.org) ([Archive](http://mail-archives.apache.org/mod_mbox/singa-dev/))
 * [Commits Mailing List](mailto:commits-subscribe@singa.incubator.apache.org) ([Archive](http://mail-archives.apache.org/mod_mbox/singa-commits/))
-
-## change note:
-this version is a brach off of junzhezhang's master, Cmakelist and dependencies remain changed.
-This version implements SmartMemPool, got changes in memory.cc, memory.h, cuda_gpu.cc, platform.cc,and cifar-10/train.py. 

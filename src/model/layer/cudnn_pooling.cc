@@ -65,17 +65,9 @@ void CudnnPooling::InitCudnn(const Tensor &input) {
   else
     LOG(FATAL) << "Not implemented!";
 
-#if CUDNN_MAJOR == 5
   CUDNN_CHECK(cudnnSetPooling2dDescriptor(pool_desc_, pool_method, nan_prop_,
                                           kernel_h_, kernel_w_, pad_h_, pad_w_,
                                           stride_h_, stride_w_));
-#elif CUDNN_MAJOR == 4
-  CUDNN_CHECK(cudnnSetPooling2dDescriptor_v4(pool_desc_, pool_method, nan_prop_,
-                                             kernel_h_, kernel_w_, pad_h_,
-                                             pad_w_, stride_h_, stride_w_));
-#else
-  LOG(FATAL) << "Not supported CUDNN version = " << CUDNN_MAJOR;
-#endif
   has_init_cudnn_ = true;
 }
 
@@ -117,9 +109,6 @@ const Tensor CudnnPooling::Forward(int flag, const Tensor &input) {
     buf_.push(input);
     buf_.push(output);
   }
-  input.AppendLayer();
-  output.AppendLayer();
-
   return output;
 }
 
@@ -145,11 +134,6 @@ const std::pair<Tensor, vector<Tensor>> CudnnPooling::Backward(
                          dyblock->data(), this->x_desc_, xblock->data(), &beta,
                          this->x_desc_, dxblock->mutable_data());
   }, {grad.block(), y.block(), x.block()}, {dx.block()});
-
-  grad.AppendLayer();
-  dx.AppendLayer();
-  y.AppendLayer();
-  x.AppendLayer();
 
   return std::make_pair(dx, param_grad);
 }

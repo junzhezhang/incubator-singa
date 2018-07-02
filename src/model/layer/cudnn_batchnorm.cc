@@ -137,11 +137,6 @@ const Tensor CudnnBatchNorm::Forward(int flag, const Tensor& input) {
         {output.block()});
   }
   if (is_2d_) output.Reshape(Shape{shape.at(0), shape.at(1)});
-
-  input.AppendLayer();
-  output.AppendLayer();
-  x.AppendLayer();
-
   return output;
 }
 
@@ -184,10 +179,6 @@ const std::pair<Tensor, vector<Tensor>> CudnnBatchNorm::Backward(
   param_grad.push_back(dummy);
   param_grad.push_back(dummy);
   if (is_2d_) dx.Reshape(Shape{dx.shape().at(0), dx.shape().at(1)});
-
-  grad.AppendLayer();
-  dx.AppendLayer();
-
   return std::make_pair(dx, param_grad);
 }
 }  // namespace

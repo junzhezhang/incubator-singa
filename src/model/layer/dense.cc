@@ -58,18 +58,10 @@ const Tensor Dense::Forward(int flag, const Tensor &input) {
     output = Mult(input, weight_.T());
   else
     output = Mult(input, weight_);
-  
-  
-  if (bias_term_){
+  if (bias_term_)
     AddRow(bias_, &output);
-	bias_.AppendLayer();
-	}
   if (flag & kTrain)
     buf_.push(input);
-
-  weight_.AppendLayer();
-  input.AppendLayer();
-  output.AppendLayer();
   return output;
 }
 
@@ -95,17 +87,8 @@ const std::pair<Tensor, vector<Tensor>> Dense::Backward(int flag,
     dw = Mult(src_data.T(), grad);
   }
   param_grad.push_back(dw);
-  if (bias_term_){
-  	param_grad.push_back(db);
-	db.AppendLayer();
-  }
-  dw.AppendLayer();
-  dx.AppendLayer();
-  weight_.AppendLayer();
-  //bias_.AppendLayer();//TODO(junzhe) maynot be needed.
-  grad.AppendLayer();
-  src_data.AppendLayer();
-
+  if (bias_term_)
+    param_grad.push_back(db);
   return std::make_pair(dx, param_grad);
 }
 

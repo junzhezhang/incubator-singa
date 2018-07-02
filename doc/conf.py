@@ -34,8 +34,12 @@
 #
 import os
 import sys
-#sys.path.insert(0, os.path.abspath('.'))
-#sys.path.insert(1, os.path.abspath('../build/python/'))
+
+# If the user has singa codebase
+# will build document from code comments in these loactions
+sys.path.append(os.path.abspath('../python/'))
+sys.path.append(os.path.abspath('../build/python/'))
+
 
 # -- General configuration ------------------------------------------------
 from recommonmark.parser import CommonMarkParser
@@ -71,7 +75,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'incubator-singa'
-copyright = u'2017 The Apache Software Foundation. All rights reserved. Apache SINGA, Apache, the Apache feather logo, and the Apache SINGA project logos are trademarks of The Apache Software Foundation. All other marks mentioned may be trademarks or registered trademarks of their respective owners.'
+copyright = u'2018 The Apache Software Foundation. All rights reserved. Apache SINGA, Apache, the Apache feather logo, and the Apache SINGA project logos are trademarks of The Apache Software Foundation. All other marks mentioned may be trademarks or registered trademarks of their respective owners.'
 author = u'moaz'
 
 # The version info for the project you're documenting, acts as replacement for
