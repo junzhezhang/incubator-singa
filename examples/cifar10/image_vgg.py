@@ -37,23 +37,23 @@ def init_params(net, weight_path=None):
     if weight_path is None:
         for pname, pval in zip(net.param_names(), net.param_values()):
             print(pname, pval.shape)
-            if 'conv' in pname and len(pval.shape) > 1:
-                initializer.gaussian(pval, 0, pval.shape[1])
-                print ('conv')
-                print (pval.shape)
-                print (pval.shape[1])
-            elif 'dense' in pname:
-                if len(pval.shape) > 1:
-                    initializer.gaussian(pval, 0, pval.shape[0])
-                else:
-                    pval.set_value(0)
-            # init params from batch norm layer
-            elif 'mean' in pname or 'beta' in pname:
-                pval.set_value(0)
-            elif 'var' in pname or 'gamma' in pname:
-                pval.set_value(1)
-            else:
-              print ("not in any condition, DSB!!!")
+            # if 'conv' in pname and len(pval.shape) > 1:
+            #     initializer.gaussian(pval, 0, pval.shape[1])
+            #     print ('conv')
+            #     print (pval.shape)
+            #     print (pval.shape[1])
+            # elif 'dense' in pname:
+            #     if len(pval.shape) > 1:
+            #         initializer.gaussian(pval, 0, pval.shape[0])
+            #     else:
+            #         pval.set_value(0)
+            # # init params from batch norm layer
+            # elif 'mean' in pname or 'beta' in pname:
+            #     pval.set_value(0)
+            # elif 'var' in pname or 'gamma' in pname:
+            #     pval.set_value(1)
+            # else:
+            #   print ("not in any condition, DSB!!!")
               # print (pval.shape)
               # print (pval.shape[0])
               # print (pname.shape)
