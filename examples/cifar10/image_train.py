@@ -122,7 +122,7 @@ def caffe_lr(epoch):
         return 0.0001
 
 
-def train(net, max_epoch, get_lr, weight_decay, batch_size=8,
+def train(net, max_epoch, get_lr, weight_decay, batch_size=1,
           use_cpu=False):
     print('Start intialization............')
     if use_cpu:
