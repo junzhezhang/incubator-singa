@@ -36,7 +36,7 @@ def create_layers(net, cfg, sample_shape, batch_norm=False):
 def init_params(net, weight_path=None):
     if weight_path is None:
         for pname, pval in zip(net.param_names(), net.param_values()):
-            print(pname, pval.shape)
+            print(pname, pval.shape,len(pval.shape))
             # if 'conv' in pname and len(pval.shape) > 1:
             #     initializer.gaussian(pval, 0, pval.shape[1])
             #     print ('conv')
