@@ -181,6 +181,9 @@ def train(data, net, max_epoch, get_lr, weight_decay, batch_size=100,
         for b in range(0):
             x = test_x[b * batch_size: (b + 1) * batch_size]
             y = test_y[b * batch_size: (b + 1) * batch_size]
+            print "shape and type of y"
+            print y.shape
+            print type(y)
             tx.copy_from_numpy(x)
             ty.copy_from_numpy(y)
             l, a = net.evaluate(tx, ty)

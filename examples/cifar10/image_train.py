@@ -122,7 +122,7 @@ def caffe_lr(epoch):
         return 0.0001
 
 
-def train(data, net, max_epoch, get_lr, weight_decay, batch_size=100,
+def train(net, max_epoch, get_lr, weight_decay, batch_size=100,
           use_cpu=False):
     print('Start intialization............')
     if use_cpu:
@@ -139,13 +139,11 @@ def train(data, net, max_epoch, get_lr, weight_decay, batch_size=100,
 
     tx = tensor.Tensor((batch_size, 3, 299, 299), dev)
     ty = tensor.Tensor((batch_size,), dev, core_pb2.kInt)
-    train_x, train_y, test_x, test_y = data
-    num_train_batch = train_x.shape[0] // batch_size
-    num_test_batch = test_x.shape[0] // batch_size
-    idx = np.arange(train_x.shape[0], dtype=np.int32)
+    # train_x, train_y, test_x, test_y = data
+    # idx = np.arange(train_x.shape[0], dtype=np.int32)
     fileTimeLog =open("epochTimeLog.text","a")
     for epoch in range(1):
-        np.random.shuffle(idx)
+        # np.random.shuffle(idx)
         loss, acc = 0.0, 0.0
         print('Epoch %d' % epoch)
         print(datetime.now().timetz()) # miliseconds
@@ -163,7 +161,7 @@ def train(data, net, max_epoch, get_lr, weight_decay, batch_size=100,
             y = train_y[idx[b * batch_size: (b + 1) * batch_size]]
             x = np.random.randint(0,255,(batch_size,3,299,299),np.int64)
             x = np.array(x,dtype =np.float32)
-
+            
             ty.copy_from_numpy(y)
             grads, (l, a) = net.train(tx, ty)
             loss += l
@@ -177,18 +175,6 @@ def train(data, net, max_epoch, get_lr, weight_decay, batch_size=100,
             % ((loss / num_train_batch), (acc / num_train_batch), get_lr(epoch))
         print(info)
 
-        loss, acc = 0.0, 0.0
-        for b in range(0):
-            x = test_x[b * batch_size: (b + 1) * batch_size]
-            y = test_y[b * batch_size: (b + 1) * batch_size]
-            tx.copy_from_numpy(x)
-            ty.copy_from_numpy(y)
-            l, a = net.evaluate(tx, ty)
-            loss += l
-            acc += a
-
-        print('test loss = %f, test accuracy = %f' %
-              ((loss / num_test_batch), (acc / num_test_batch)))
     fileTimeLog.close()
     net.save('model', 20)  # save model params into checkpoint file
 
@@ -203,30 +189,11 @@ if __name__ == '__main__':
     assert os.path.exists(args.data), \
         'Pls download the cifar10 dataset via "download_data.py py"'
     print('Loading data ..................')
-    train_x, train_y = load_train_data(args.data)
-    test_x, test_y = load_test_data(args.data)
-    if args.model == 'caffe':
-        train_x, test_x = normalize_for_alexnet(train_x, test_x)
-        net = caffe_net.create_net(args.use_cpu)
-        # for cifar10_full_train_test.prototxt
-        train((train_x, train_y, test_x, test_y), net, 160, alexnet_lr, 0.004,
-              use_cpu=args.use_cpu,batch_size=args.batch_size)
-        # for cifar10_quick_train_test.prototxt
-        # train((train_x, train_y, test_x, test_y), net, 18, caffe_lr, 0.004,
-        #      use_cpu=args.use_cpu)
-    elif args.model == 'alexnet':
-        train_x, test_x = normalize_for_alexnet(train_x, test_x)
-        net = alexnet.create_net(args.use_cpu)
-        train((train_x, train_y, test_x, test_y), net, 2, alexnet_lr, 0.004,
-              use_cpu=args.use_cpu,batch_size=args.batch_size)
-    elif args.model == 'vgg':
-        train_x, test_x = normalize_for_vgg(train_x, test_x)
+
+    if args.model == 'vgg':
+        # train_x, test_x = normalize_for_vgg(train_x, test_x)
         net = vgg.create_net(13,1000)
         vgg.init_params(net, weight_path=None)
-        train((train_x, train_y, test_x, test_y), net, 250, vgg_lr, 0.0005,
+        train(net, 250, vgg_lr, 0.0005,
               use_cpu=args.use_cpu,batch_size=args.batch_size)
-    else:
-        train_x, test_x = normalize_for_alexnet(train_x, test_x)
-        net = resnet.create_net(args.use_cpu)
-        train((train_x, train_y, test_x, test_y), net, 200, resnet_lr, 1e-4,
-              use_cpu=args.use_cpu,batch_size=args.batch_size)
+    
