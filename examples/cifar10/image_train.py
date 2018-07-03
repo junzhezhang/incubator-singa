@@ -221,7 +221,7 @@ if __name__ == '__main__':
               use_cpu=args.use_cpu,batch_size=args.batch_size)
     elif args.model == 'vgg':
         train_x, test_x = normalize_for_vgg(train_x, test_x)
-        net = vgg.create_net(args.use_cpu)
+        net = vgg.create_net(13,1000)
         train((train_x, train_y, test_x, test_y), net, 250, vgg_lr, 0.0005,
               use_cpu=args.use_cpu,batch_size=args.batch_size)
     else:
