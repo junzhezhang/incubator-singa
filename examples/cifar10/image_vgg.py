@@ -39,9 +39,9 @@ def init_params(net, weight_path=None):
         for pname, pval in zip(net.param_names(), net.param_values()):
             print(pname, pval.shape,len(pval.shape))
             if len(pval.shape) == 2:
-              initializer.uniform(x, pval.shape[0], pval.shape[1])
+              initializer.uniform(pval, pval.shape[0], pval.shape[1])
             elif len(pval.shape) == 1:
-              initializer.uniform(x, pval.shape[0])
+              initializer.uniform(pval, pval.shape[0])
               print ("condition shape 1")
             else:
               print ("not in any condition, DSB!!!")
