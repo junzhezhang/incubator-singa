@@ -136,7 +136,7 @@ void Tensor::AsType(const DataType type) {
     if (block_ != nullptr && block_->DecRefCount() == 0)
       device_->FreeBlock(block_);
     std::cout<<"Call NewBlock in Tensor "<<Product(shape) * SizeOf(type)<<std::endl;
-    block_ = device_->NewBlock((int)(Product(shape_) * SizeOf(type)));
+    block_ = device_->NewBlock((int)(Product(shape) * SizeOf(type)));
     data_type_ = type;
   }
 }
