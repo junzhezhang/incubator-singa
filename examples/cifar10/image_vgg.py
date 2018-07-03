@@ -39,6 +39,9 @@ def init_params(net, weight_path=None):
             print(pname, pval.shape)
             if 'conv' in pname and len(pval.shape) > 1:
                 initializer.gaussian(pval, 0, pval.shape[1])
+                print ('conv')
+                print (pval.shape)
+                print (pval.shape[1])
             elif 'dense' in pname:
                 if len(pval.shape) > 1:
                     initializer.gaussian(pval, 0, pval.shape[0])
@@ -51,9 +54,9 @@ def init_params(net, weight_path=None):
                 pval.set_value(1)
             else:
               print ("not in any condition, DSB!!!")
-              print (pval.shape)
-              print (pval.shape[0])
-              print (pname.shape)
+              # print (pval.shape)
+              # print (pval.shape[0])
+              # print (pname.shape)
               # initializer.gaussian(pval, 0, pval.shape[0])
               
     else:
