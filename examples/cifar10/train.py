@@ -162,7 +162,7 @@ def train(data, net, max_epoch, get_lr, weight_decay, batch_size=100,
             x = train_x[idx[b * batch_size: (b + 1) * batch_size]]
             y = train_y[idx[b * batch_size: (b + 1) * batch_size]]
             # x = np.random.randint(0,255,(batch_size,3,299,299),np.int64)
-            # x = np.array(x,dtype =np.float.32)
+            # x = np.array(x,dtype =np.float32)
             tx.copy_from_numpy(x)
             ty.copy_from_numpy(y)
             grads, (l, a) = net.train(tx, ty)
