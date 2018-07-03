@@ -38,6 +38,16 @@ def init_params(net, weight_path=None):
         print ("======== to init param")
         for pname, pval in zip(net.param_names(), net.param_values()):
             print(pname, pval.shape,len(pval.shape),type(pval))
+            if len(pval.shape) == 2:
+              y = np.random.randint(0,255,(pval.shape[0],pval.shape[1]),np.int64)
+              y = np.array(y,dtype =np.float32)
+              pval.copy_from_numpy(y)
+            elif len(pval.shape) == 1:
+              y = np.random.randint(0,255,(pval.shape[0],),np.int64)
+              y = np.array(y,dtype =np.float32)
+              pval.copy_from_numpy(y)
+            else:
+              print ("not in any condition, DSB!!!")
 
             # if len(pval.shape) == 2:
             #   initializer.uniform(pval, pval.shape[0], pval.shape[1])
