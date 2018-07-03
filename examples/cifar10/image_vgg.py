@@ -51,7 +51,7 @@ def init_params(net, weight_path=None):
                 pval.set_value(1)
             else:
               print (pval.shape)
-              # initializer.gaussian(pval, 0, pval.shape[1])
+              initializer.gaussian(pval, 0, pval.shape[0])
               print ("not in any condition, DSB!!!")
     else:
         net.load(weight_path, use_pickle='pickle' in weight_path)
