@@ -158,10 +158,10 @@ def train(net, max_epoch, get_lr, weight_decay, batch_size=100,
             fileTimeLog.write(str(int(round(time.time()*1000))))
             fileTimeLog.write('\n')
             # x = train_x[idx[b * batch_size: (b + 1) * batch_size]]
-            y = train_y[idx[b * batch_size: (b + 1) * batch_size]]
+            # y = train_y[idx[b * batch_size: (b + 1) * batch_size]]
             x = np.random.randint(0,255,(batch_size,3,299,299),np.int64)
             x = np.array(x,dtype =np.float32)
-            
+            y =np.ones((batch_size,1))
             ty.copy_from_numpy(y)
             grads, (l, a) = net.train(tx, ty)
             loss += l
@@ -193,7 +193,7 @@ if __name__ == '__main__':
     if args.model == 'vgg':
         # train_x, test_x = normalize_for_vgg(train_x, test_x)
         net = vgg.create_net(13,1000)
-        vgg.init_params(net, weight_path=None)
+        # vgg.init_params(net, weight_path=None) #TODO check if needed.
         train(net, 250, vgg_lr, 0.0005,
               use_cpu=args.use_cpu,batch_size=args.batch_size)
     
