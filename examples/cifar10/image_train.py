@@ -222,6 +222,7 @@ if __name__ == '__main__':
     elif args.model == 'vgg':
         train_x, test_x = normalize_for_vgg(train_x, test_x)
         net = vgg.create_net(13,1000)
+        vgg.init_params(net, weight_path=None)
         train((train_x, train_y, test_x, test_y), net, 250, vgg_lr, 0.0005,
               use_cpu=args.use_cpu,batch_size=args.batch_size)
     else:
