@@ -40,7 +40,7 @@ from singa.proto import core_pb2
 from caffe import caffe_net
 
 import alexnet
-import vgg
+import image_vgg as vgg
 import resnet
 
 from datetime import datetime
@@ -159,9 +159,11 @@ def train(data, net, max_epoch, get_lr, weight_decay, batch_size=100,
             fileTimeLog.write('iteration %d: ' % b)
             fileTimeLog.write(str(int(round(time.time()*1000))))
             fileTimeLog.write('\n')
-            x = train_x[idx[b * batch_size: (b + 1) * batch_size]]
+            # x = train_x[idx[b * batch_size: (b + 1) * batch_size]]
             y = train_y[idx[b * batch_size: (b + 1) * batch_size]]
-            tx.copy_from_numpy(x)
+            x = np.random.randint(0,255,(batch_size,3,299,299),np.int64)
+            x = np.array(x,dtype =np.float.32)
+
             ty.copy_from_numpy(y)
             grads, (l, a) = net.train(tx, ty)
             loss += l
