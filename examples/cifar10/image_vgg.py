@@ -50,11 +50,12 @@ def init_params(net, weight_path=None):
             elif 'var' in pname or 'gamma' in pname:
                 pval.set_value(1)
             else:
+              print ("not in any condition, DSB!!!")
               print (pval.shape)
               print (pval.shape[0])
               print (pname.shape)
               # initializer.gaussian(pval, 0, pval.shape[0])
-              print ("not in any condition, DSB!!!")
+              
     else:
         net.load(weight_path, use_pickle='pickle' in weight_path)
 
