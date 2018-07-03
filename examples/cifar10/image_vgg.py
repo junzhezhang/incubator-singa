@@ -42,12 +42,12 @@ def init_params(net, weight_path=None):
             print(pname, pval.shape,len(pval.shape),type(pval))
             if len(pval.shape) == 2:
               y = np.random.randint(0,255,(pval.shape[0],pval.shape[1]),np.int64)
-              y = np.array(y,dtype =np.float32)
+              y = np.array(y,dtype =np.int8)
               print (y.shape)
               pval.copy_from_numpy(y)
             elif len(pval.shape) == 1:
               y = np.random.randint(0,255,(pval.shape[0],),np.int64)
-              y = np.array(y,dtype =np.float32)
+              y = np.array(y,dtype =np.int8)
               print (y.shape)
               pval.copy_from_numpy(y)
             else:
