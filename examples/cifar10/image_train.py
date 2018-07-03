@@ -139,6 +139,8 @@ def train(net, max_epoch, get_lr, weight_decay, batch_size=100,
 
     tx = tensor.Tensor((batch_size, 3, 299, 299), dev)
     ty = tensor.Tensor((batch_size,), dev, core_pb2.kInt)
+    print ("type of tx, ty")
+    print (type(tx),type(ty))
     # train_x, train_y, test_x, test_y = data
     # idx = np.arange(train_x.shape[0], dtype=np.int32)
     fileTimeLog =open("epochTimeLog.text","a")
