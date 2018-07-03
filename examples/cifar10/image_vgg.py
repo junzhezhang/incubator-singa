@@ -3,6 +3,8 @@ from singa.layer import Conv2D, Activation, MaxPooling2D, \
 from singa import net as ffnet
 from singa import initializer
 from singa import layer
+import numpy as np
+import random
 
 
 ffnet.verbose=False
