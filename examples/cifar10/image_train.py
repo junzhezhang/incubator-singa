@@ -193,7 +193,7 @@ if __name__ == '__main__':
     if args.model == 'vgg':
         # train_x, test_x = normalize_for_vgg(train_x, test_x)
         net = vgg.create_net(13,1000)
-        # vgg.init_params(net, weight_path=None) #TODO check if needed.
+        vgg.init_params(net, weight_path=None) #TODO check if needed
         train(net, 250, vgg_lr, 0.0005,
               use_cpu=args.use_cpu,batch_size=args.batch_size)
     
