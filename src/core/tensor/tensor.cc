@@ -1,4 +1,4 @@
-/**
+x/**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -36,12 +36,14 @@ Tensor::Tensor(const Shape &shape, DataType dtype)
     : data_type_(dtype), device_(defaultDevice), shape_(shape) {
   size_t size = Product(shape_) * SizeOf(data_type_);
   if (size)
+    std::cout<<"Call NewBlock in Tensor "<<size<<std::endl;
     block_ = device_->NewBlock((int)size);
 }
 Tensor::Tensor(Shape &&shape, DataType dtype)
     : data_type_(dtype), device_(defaultDevice), shape_(shape) {
   size_t size = Product(shape_) * SizeOf(data_type_);
   if (size)
+    std::cout<<"Call NewBlock in Tensor "<<size<<std::endl;
     block_ = device_->NewBlock((int)size);
 }
 Tensor::Tensor(const Shape &shape, std::shared_ptr<Device> device,
@@ -49,12 +51,14 @@ Tensor::Tensor(const Shape &shape, std::shared_ptr<Device> device,
     : data_type_(dtype), device_(device), shape_(shape) {
   size_t size = Product(shape_) * SizeOf(data_type_);
   if (size)
+    std::cout<<"Call NewBlock in Tensor "<<size<<std::endl;
     block_ = device_->NewBlock((int)size);
 }
 Tensor::Tensor(Shape &&shape, std::shared_ptr<Device> device, DataType dtype)
     : data_type_(dtype), device_(device), shape_(shape) {
   size_t size = Product(shape_) * SizeOf(data_type_);
   if (size)
+    std::cout<<"Call NewBlock in Tensor "<<size<<std::endl;
     block_ = device_->NewBlock((int)size);
 }
 Tensor::Tensor(const Tensor &in)
@@ -101,6 +105,7 @@ void Tensor::ResetLike(const Tensor &in) {
       device_->FreeBlock(block_);
     device_ = in.device_;
     data_type_ = in.data_type_;
+    std::cout<<"Call NewBlock in Tensor "<<in.MemSize()<<std::endl;
     block_ = device_->NewBlock((int)in.MemSize());
   }
   shape_ = in.shape_;
@@ -110,6 +115,7 @@ void Tensor::Reshape(const Shape &shape) {
   if (Product(shape_) != Product(shape)) {
     if (block_ != nullptr && block_->DecRefCount() == 0)
       device_->FreeBlock(block_);
+    std::cout<<"Call NewBlock in Tensor "<<Product(shape) * SizeOf(data_type_)<<std::endl;
     block_ = device_->NewBlock((int)(Product(shape) * SizeOf(data_type_)));
   }
   shape_ = shape;
@@ -119,6 +125,7 @@ void Tensor::Reshape(Shape &&shape) {
   if (Product(shape_) != Product(shape)) {
     if (block_ != nullptr && block_->DecRefCount() == 0)
       device_->FreeBlock(block_);
+    std::cout<<"Call NewBlock in Tensor "<<Product(shape) * SizeOf(data_type_)<<std::endl;
     block_ = device_->NewBlock((int)(Product(shape) * SizeOf(data_type_)));
   }
   shape_ = std::move(shape);
@@ -128,6 +135,7 @@ void Tensor::AsType(const DataType type) {
   if (data_type_ != type) {
     if (block_ != nullptr && block_->DecRefCount() == 0)
       device_->FreeBlock(block_);
+    std::cout<<"Call NewBlock in Tensor "<<Product(shape) * SizeOf(data_type_)<<std::endl;
     block_ = device_->NewBlock((int)(Product(shape_) * SizeOf(type)));
     data_type_ = type;
   }
