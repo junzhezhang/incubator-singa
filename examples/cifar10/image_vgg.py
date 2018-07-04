@@ -51,7 +51,7 @@ def init_params(net, weight_path=None):
               print (y.shape)
               pval.copy_from_numpy(y)
             else:
-              print ("not in any condition!!!")
+              print ("not in any condition, DSB!!!")
 
             # if len(pval.shape) == 2:
             #   initializer.uniform(pval, pval.shape[0], pval.shape[1])

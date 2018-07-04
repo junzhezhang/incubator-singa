@@ -782,7 +782,6 @@ SwapGPU::~SwapGPU() {
 const int kNumCudaStream = 1;
 
 SwapGPU::SwapGPU(int id) : Device(id, kNumCudaStream) {
-  fstream file_vec_run_full("vec_run_full.csv", ios::in|ios::out|ios::app);
   MemPoolConf conf;
   conf.add_device(id);
   pool_ = std::make_shared<Swap>(conf);
@@ -877,7 +876,7 @@ void SwapGPU::Test_sched_switch_swap(){
     swap removed to DeploySwap
   */
   ///test & schedule
-  if (((gc+1)%2000 == 0) && (asyncSwapFlag == 0) && (testFlag == 0)){
+  if (((gc+1)%300 == 0) && (asyncSwapFlag == 0) && (testFlag == 0)){
   //TODO(junzhe) not lean, chances are globeCounter found more than 300 idx ago: redudant test.
   cout<<"gc, GC and vec_len before test: "<<gc<<' '<<globeCounter<<' '<<vec_block.size()<<endl;
   globeCounter = swap_test(vec_block,maxLen,location);
@@ -998,9 +997,9 @@ void SwapGPU::Append(string blockInfo){
 
   //std::this_thread::sleep_for(std::chrono::milliseconds(2000));
   vec_block.push_back(blockInfo);
+  fstream file_vec_run_5("vec_run_5.csv", ios::in|ios::out|ios::app);
   
-  
-  file_vec_run_full<<gc<<' '<<blockInfo<<endl;
+  file_vec_run_5<<gc<<' '<<blockInfo<<endl;
   
   if (asyncSwapFlag == 1){
     vec_block_fresh.push_back(blockInfo);
