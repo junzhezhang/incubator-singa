@@ -876,7 +876,7 @@ void SwapGPU::Test_sched_switch_swap(){
     swap removed to DeploySwap
   */
   ///test & schedule
-  if (((gc+1)%300 == 0) && (asyncSwapFlag == 0) && (testFlag == 0)){
+  if (((gc+1)%2000 == 0) && (asyncSwapFlag == 0) && (testFlag == 0)){
   //TODO(junzhe) not lean, chances are globeCounter found more than 300 idx ago: redudant test.
   cout<<"gc, GC and vec_len before test: "<<gc<<' '<<globeCounter<<' '<<vec_block.size()<<endl;
   globeCounter = swap_test(vec_block,maxLen,location);
