@@ -182,7 +182,7 @@ vector<size_t> Swap_piece2rep (vector<onePieceMsg>onePieceMsgVec_){
     cout<<"rep size: "<<rep.size()<<endl;
     return rep;
 }
-void repPatternDetector(vector<size_t>rep, int &maxLen, int &location){
+void repPatternDetector(vector<size_t>rep, int &maxLen, int &location, int maxLen_threshold, int gc ){
     int idxRange = (int)rep.size();
     int threshold = std::max(maxLen_threshold,gc/3);
     vector<pair<int,int>>maxLen_location;
@@ -559,7 +559,7 @@ int SwapGPU::swap_test(vector<string>vec_block,int &maxLen, int &location){
   vector<size_t> vec_rep = Swap_piece2rep(vec_pieceMsg);
   //int idxRange3=0; //rename TODO(junzhe)
   //int maxLen=0, location =0;
-  repPatternDetector(vec_rep,maxLen,location);
+  repPatternDetector(vec_rep,maxLen,location,maxLen_threshold,gc);
   cout<<"maxLen and location are: "<<maxLen<<' '<<location<<endl;
   cout<<"test rep"<<endl;
   //Note here location not exactly start of one iteration, 
