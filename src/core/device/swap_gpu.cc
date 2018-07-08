@@ -578,8 +578,8 @@ int SwapGPU::swap_test(vector<string>vec_block,int &maxLen, int &location){
 
   if (maxLen<maxLen_threshold) {return -1;}
 
-  maxLen_threshold = std::max(maxLen_threshold,gc/3)
-
+  maxLen_threshold = std::max(maxLen_threshold,gc/3);
+  
   return gc+maxLen-(gc-location)%maxLen;
 } 
 
