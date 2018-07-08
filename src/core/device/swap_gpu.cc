@@ -184,7 +184,7 @@ vector<size_t> Swap_piece2rep (vector<onePieceMsg>onePieceMsgVec_){
 }
 void repPatternDetector(vector<size_t>rep, int &maxLen, int &location){
     int idxRange = (int)rep.size();
-    int threshold =100;
+    int threshold = std::max(maxLen_threshold,gc/3);
     vector<pair<int,int>>maxLen_location;
     
     for (int i=0; i<idxRange;i++){
@@ -576,7 +576,9 @@ int SwapGPU::swap_test(vector<string>vec_block,int &maxLen, int &location){
   cout<<"shift_counter is "<<shift_counter<<endl;
   cout<<"location changed to "<<location<<endl;
 
-  if (maxLen<100) {return -1;}
+  if (maxLen<maxLen_threshold) {return -1;}
+
+  maxLen_threshold = std::max(maxLen_threshold,gc/3)
 
   return gc+maxLen-(gc-location)%maxLen;
 } 
@@ -880,7 +882,7 @@ void SwapGPU::Test_sched_switch_swap(){
   //TODO(junzhe) not lean, chances are globeCounter found more than 300 idx ago: redudant test.
   cout<<"gc, GC and vec_len before test: "<<gc<<' '<<globeCounter<<' '<<vec_block.size()<<endl;
   globeCounter = swap_test(vec_block,maxLen,location);
-  if (maxLen > 100) {
+  if (maxLen > maxLen_threshold) {
     testFlag = 1;
     cout<<"compele test-swap:::::::::::::::::::::::::::::::::::::::::::::::::"<<endl;
     cout<<"size of Table_sched: "<<Table_sched.size()<<endl;
@@ -985,7 +987,7 @@ void SwapGPU::Append(string blockInfo){
     blockInfo = v[0] + ' ' + v[1] + ' ' + tempStr1 + ' ' + v[2];
   }
   // update global load
-  if (maxLen < 100){
+  if (maxLen < maxLen_threshold){
     if (v[0] == "Malloc"){
       if (global_load.size()>0){
         global_load.push_back(global_load[global_load.size()-1]+tempBlock_->size());
@@ -1007,7 +1009,7 @@ void SwapGPU::Append(string blockInfo){
   if (asyncSwapFlag == 1){
     vec_block_fresh.push_back(blockInfo);
   }
-  if ((maxLen>100)&&((gc-globeCounter+1)==3*maxLen)){
+  if ((maxLen>maxLen_threshold)&&((gc-globeCounter+1)==3*maxLen)){
     fstream file_block_fresh("vec_block_fresh.csv", ios::in|ios::out|ios::app);
     for (int i =0; i<vec_block_fresh.size();i++){
       file_block_fresh<<vec_block_fresh[i]<<endl;
@@ -1017,7 +1019,7 @@ void SwapGPU::Append(string blockInfo){
   // file_block5<<gc<<' '<<blockInfo<<' '<<(gc-1247)%612<<endl;
 
   // update Table_meta's block_ and data_
-  if (maxLen > 100) {
+  if (maxLen > maxLen_threshold) {
     //cout<<gc<<' '<<(gc-location)%maxLen<<' '<<blockInfo<<endl;
     int r_gc = (gc-location)%maxLen;
     if (!(Table_meta.find(r_gc)==Table_meta.end())){
@@ -1028,7 +1030,7 @@ void SwapGPU::Append(string blockInfo){
       Table_meta.find(r_gc)->second.data_ = tempBlock_->get_data();
     }
   }
-  if ((maxLen>100) && ((gc-location)%(maxLen) == 0)){
+  if ((maxLen>maxLen_threshold) && ((gc-location)%(maxLen) == 0)){
     if (tempTime != 0){
       fstream file_time("itr_time.csv", ios::in|ios::out|ios::app);
       auto t_now = (std::chrono::system_clock::now()).time_since_epoch().count();

@@ -353,6 +353,7 @@ class SwapGPU : public Device {
   double tempTime = 0;
   double tempTime2 = 0;
   double tempTime_baseline; //vec_run[0] time
+  int maxLen_threshold = 1000;
 
  private:
   shared_ptr<DeviceMemPool> pool_;
