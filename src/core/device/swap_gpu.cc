@@ -782,6 +782,10 @@ SwapGPU::~SwapGPU() {
 const int kNumCudaStream = 1;
 
 SwapGPU::SwapGPU(int id) : Device(id, kNumCudaStream) {
+  fstream file_block_full("vec_block_full.csv", ios::in|ios::out|ios::app);
+  for (int i =0; i<vec_block.size();i++){
+    file_block_full<<vec_block[i]<<endl;
+  }
   MemPoolConf conf;
   conf.add_device(id);
   pool_ = std::make_shared<Swap>(conf);
