@@ -844,8 +844,6 @@ size_t SwapGPU::GetAllocatedMem() {
 /// Allocate gpu memory.
 void* SwapGPU::Malloc(int size) {
 
-  Test_sched_switch_swap();
-  //cout<<"malloc after test"<<endl;
   void* ptr = nullptr;
   if (size > 0) {
     CUDA_CHECK(cudaSetDevice(id_));
@@ -860,9 +858,6 @@ void* SwapGPU::Malloc(int size) {
 /// Free gpu memory.
 void SwapGPU::Free(void* ptr) {
 
-  Test_sched_switch_swap();
-  //cout<<"free after test"<<endl;
-
   if (ptr != nullptr) {
     CUDA_CHECK(cudaSetDevice(id_));
     pool_->Free(ptr);
@@ -873,37 +868,38 @@ void SwapGPU::Free(void* ptr) {
 
 void SwapGPU::Test_sched_switch_swap(){
   /*
-    do Test_sched_switch_swap during Malloc and Free.
+    v1: do Test_sched_switch_swap during (before) Malloc and Free.
     swap removed to DeploySwap
+    v2: test after every index, at Append. order and index changed.
   */
   ///test & schedule
   if (((gc+1)%2000 == 0) && (asyncSwapFlag == 0) && (testFlag == 0)){
-  //TODO(junzhe) not lean, chances are globeCounter found more than 300 idx ago: redudant test.
-  cout<<"gc, GC and vec_len before test: "<<gc<<' '<<globeCounter<<' '<<vec_block.size()<<endl;
-  globeCounter = swap_test(vec_block,maxLen,location);
-  // maxLen_threshold = std::max(maxLen_threshold,gc/10);
-  // maxLen_threshold = std::min(2000,maxLen_threshold);
-  if (maxLen > maxLen_threshold) {
-    testFlag = 1;
-    cout<<"compele test-swap:::::::::::::::::::::::::::::::::::::::::::::::::"<<endl;
-    cout<<"size of Table_sched: "<<Table_sched.size()<<endl;
-    cout<<"size of Table_meta: "<<Table_meta.size()<<endl;
-    cout<<"impt numbers (maxLen, location, GC) "<<maxLen<<' '<<location<<' '<<globeCounter<<endl;
-    
+    //TODO(junzhe) not lean, chances are globeCounter found more than 300 idx ago: redudant test.
+    cout<<"gc, GC and vec_len before test: "<<gc<<' '<<globeCounter<<' '<<vec_block.size()<<endl;
+    globeCounter = swap_test(vec_block,maxLen,location);
+    // maxLen_threshold = std::max(maxLen_threshold,gc/10);
+    // maxLen_threshold = std::min(2000,maxLen_threshold);
+    if (maxLen > maxLen_threshold) {
+      testFlag = 1;
+      cout<<"compele test-swap:::::::::::::::::::::::::::::::::::::::::::::::::"<<endl;
+      cout<<"size of Table_sched: "<<Table_sched.size()<<endl;
+      cout<<"size of Table_meta: "<<Table_meta.size()<<endl;
+      cout<<"impt numbers (maxLen, location, GC) "<<maxLen<<' '<<location<<' '<<globeCounter<<endl;
+      
    }
  }
- ///switch flag;
- if (gc == globeCounter){
-  // swap_plan();
-  vector<double>vec_load2(&global_load[location],&global_load[location+3*maxLen]);
-  origin_load = vec_load2;
-  //load before swap, write in
-  fstream file_load_origin("load_origin.csv", ios::in|ios::out|ios::app);
-  for (int i=0; i<origin_load.size(); i++){
-    file_load_origin<<origin_load[i]<<endl;
-  }
-  asyncSwapFlag = 1;
-  cout<<"switched flag for at "<<globeCounter<<endl;
+ ///switch flag; next idx
+ if ((gc+1) == globeCounter){
+    // swap_plan();
+    vector<double>vec_load2(&global_load[location],&global_load[location+3*maxLen]);
+    origin_load = vec_load2;
+    //load before swap, write in
+    fstream file_load_origin("load_origin.csv", ios::in|ios::out|ios::app);
+    for (int i=0; i<origin_load.size(); i++){
+      file_load_origin<<origin_load[i]<<endl;
+    }
+    asyncSwapFlag = 1;
+    cout<<"switched flag for at "<<globeCounter<<endl;
  }
 }
 
@@ -1043,6 +1039,9 @@ void SwapGPU::Append(string blockInfo){
 
   //deploy swap at every index.
   DeploySwap();
+
+  //test moved from start of malloc/free to end of append, only gc+1 changed
+  Test_sched_switch_swap();
   //NOTE: this gc++ includes read/write and AppendLayer as well, in addition to malloc/free.
   gc++;
 
