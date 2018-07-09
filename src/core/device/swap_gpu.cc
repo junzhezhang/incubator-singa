@@ -184,7 +184,7 @@ vector<size_t> Swap_piece2rep (vector<onePieceMsg>onePieceMsgVec_){
 }
 void repPatternDetector(vector<size_t>rep, int &maxLen, int &location, int maxLen_threshold, int gc ){
     int idxRange = (int)rep.size();
-    int threshold = std::max(maxLen_threshold,gc/3);
+    int threshold = maxLen_threshold;
     vector<pair<int,int>>maxLen_location;
     
     for (int i=0; i<idxRange;i++){
@@ -873,12 +873,12 @@ void SwapGPU::Test_sched_switch_swap(){
     v2: test after every index, at Append. order and index changed.
   */
   ///test & schedule
-  if (((gc+1)%2000 == 0) && (asyncSwapFlag == 0) && (testFlag == 0)){
+  if (((gc+1)%(maxLen_threshold) == 0) && (asyncSwapFlag == 0) && (testFlag == 0)){
     //TODO(junzhe) not lean, chances are globeCounter found more than 300 idx ago: redudant test.
     cout<<"gc, GC and vec_len before test: "<<gc<<' '<<globeCounter<<' '<<vec_block.size()<<endl;
     globeCounter = swap_test(vec_block,maxLen,location);
-    // maxLen_threshold = std::max(maxLen_threshold,gc/10);
-    // maxLen_threshold = std::min(2000,maxLen_threshold);
+    maxLen_threshold = std::max(maxLen_threshold,gc/10);
+    maxLen_threshold = std::min(2000,maxLen_threshold);
     if (maxLen > maxLen_threshold) {
       testFlag = 1;
       cout<<"compele test-swap:::::::::::::::::::::::::::::::::::::::::::::::::"<<endl;
