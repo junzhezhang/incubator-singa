@@ -881,8 +881,8 @@ void SwapGPU::Test_sched_switch_swap(){
   //TODO(junzhe) not lean, chances are globeCounter found more than 300 idx ago: redudant test.
   cout<<"gc, GC and vec_len before test: "<<gc<<' '<<globeCounter<<' '<<vec_block.size()<<endl;
   globeCounter = swap_test(vec_block,maxLen,location);
-  maxLen_threshold = std::max(maxLen_threshold,gc/10);
-  maxLen_threshold = std::min(2000,maxLen_threshold);
+  // maxLen_threshold = std::max(maxLen_threshold,gc/10);
+  // maxLen_threshold = std::min(2000,maxLen_threshold);
   if (maxLen > maxLen_threshold) {
     testFlag = 1;
     cout<<"compele test-swap:::::::::::::::::::::::::::::::::::::::::::::::::"<<endl;
