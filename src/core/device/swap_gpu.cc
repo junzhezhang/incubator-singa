@@ -761,9 +761,9 @@ void SwapGPU::swap_plan(){
 
 SwapGPU::~SwapGPU() {
   //print out push-info TODO(junzhe) can remove
-  fstream file_block1("blockInfo.csv", ios::in|ios::out|ios::app);
-  for (int i=0; i< vec_block.size();i++){
-      file_block1<<i<<' '<<vec_block[i]<<endl;
+  fstream file_block_full("vec_block_full.csv", ios::in|ios::out|ios::app);
+  for (int i =0; i<vec_block.size();i++){
+    file_block_full<<vec_block[i]<<endl;
   }
 
   fstream file_time("itr_time.csv", ios::in|ios::out|ios::app);
@@ -782,10 +782,7 @@ SwapGPU::~SwapGPU() {
 const int kNumCudaStream = 1;
 
 SwapGPU::SwapGPU(int id) : Device(id, kNumCudaStream) {
-  fstream file_block_full("vec_block_full.csv", ios::in|ios::out|ios::app);
-  for (int i =0; i<vec_block.size();i++){
-    file_block_full<<vec_block[i]<<endl;
-  }
+
   MemPoolConf conf;
   conf.add_device(id);
   pool_ = std::make_shared<Swap>(conf);
@@ -880,7 +877,7 @@ void SwapGPU::Test_sched_switch_swap(){
     swap removed to DeploySwap
   */
   ///test & schedule
-  if (((gc+1)%(maxLen_threshold/2) == 0) && (asyncSwapFlag == 0) && (testFlag == 0)){
+  if (((gc+1)%2000 == 0) && (asyncSwapFlag == 0) && (testFlag == 0)){
   //TODO(junzhe) not lean, chances are globeCounter found more than 300 idx ago: redudant test.
   cout<<"gc, GC and vec_len before test: "<<gc<<' '<<globeCounter<<' '<<vec_block.size()<<endl;
   globeCounter = swap_test(vec_block,maxLen,location);
@@ -890,7 +887,7 @@ void SwapGPU::Test_sched_switch_swap(){
     cout<<"compele test-swap:::::::::::::::::::::::::::::::::::::::::::::::::"<<endl;
     cout<<"size of Table_sched: "<<Table_sched.size()<<endl;
     cout<<"size of Table_meta: "<<Table_meta.size()<<endl;
-    cout<<"impt numbers: "<<maxLen<<' '<<location<<' '<<globeCounter<<endl;
+    cout<<"impt numbers (maxLen, location, GC) "<<maxLen<<' '<<location<<' '<<globeCounter<<endl;
     
    }
  }
