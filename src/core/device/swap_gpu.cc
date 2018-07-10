@@ -1038,10 +1038,10 @@ void SwapGPU::Append(string blockInfo){
   }
 
   //deploy swap at every index.
-  DeploySwap();
+  // DeploySwap();
 
   //test moved from start of malloc/free to end of append, only gc+1 changed
-  Test_sched_switch_swap();
+  // Test_sched_switch_swap();
   //NOTE: this gc++ includes read/write and AppendLayer as well, in addition to malloc/free.
   gc++;
 
