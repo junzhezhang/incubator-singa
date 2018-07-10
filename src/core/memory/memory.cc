@@ -91,17 +91,21 @@ CnMemPool::~CnMemPool() {
 void CnMemPool::Malloc(void **ptr, const size_t size) {
   if (!initialized_)
     Init();
-  cnmemStatus_t status = cnmemMalloc(ptr, size, NULL);
-  CHECK_EQ(status, cnmemStatus_t::CNMEM_STATUS_SUCCESS)
-      << " " << cnmemGetErrorString(status);
+  cudaError_t status = cudaMalloc(ptr, size);
+  CHECK_EQ(status, cudaError_t::cudaSuccess);
+  // cnmemStatus_t status = cnmemMalloc(ptr, size, NULL);
+  // CHECK_EQ(status, cnmemStatus_t::CNMEM_STATUS_SUCCESS)
+      // << " " << cnmemGetErrorString(status);
 }
 
 void CnMemPool::Free(void *ptr) {
   CHECK(initialized_) << "Cannot free the memory as the pool is not initialzied";
   //cout<<"(normal)to free ptr "<<ptr<<endl;
-  cnmemStatus_t status = cnmemFree(ptr, NULL);
-  CHECK_EQ(status, cnmemStatus_t::CNMEM_STATUS_SUCCESS)
-      << " " << cnmemGetErrorString(status);
+  cudaError_t status = cudaFree(ptr);
+  CHECK_EQ(status, cudaError_t::cudaSuccess);
+  // cnmemStatus_t status = cnmemFree(ptr, NULL);
+  // CHECK_EQ(status, cnmemStatus_t::CNMEM_STATUS_SUCCESS)
+      // << " " << cnmemGetErrorString(status);
 }
 
 // ===========================================================================
