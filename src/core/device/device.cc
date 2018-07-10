@@ -34,12 +34,26 @@ void Device::Exec(function<void(Context*)>&& fn, const vector<Block*> read_block
   DoExec(std::move(fn), 0);
 }
 
+// void CudaMemPool::Malloc(void **ptr, const size_t size) {
+//   cudaError_t status = cudaMalloc(ptr, size);
+//   CHECK_EQ(status, cudaError_t::cudaSuccess);
+// }
+
+// void CudaMemPool::Free(void *ptr) {
+//   cudaError_t status = cudaFree(ptr);
+//   CHECK_EQ(status, cudaError_t::cudaSuccess);
+// }
+
 // TODO(wangwei) get Block from the memory manager
 Block* Device::NewBlock(int size) {
   CHECK_GE(size, 0) << "size is negative, could be caused by the type cast "
     << "from size_t to int. In that case, the size is too large.";
   if (size > 0) {
-    void* ptr = Malloc(size);
+    void **pptr = nullptr;
+    cudaMalloc(pptr,size);
+    void* ptr = *pptr;
+    // void* ptr = Malloc(size);
+
     Block* block_ = new Block(ptr, size,0,this);
     //std::cout<<"(reference) from device.cc after, data_, block_ device: "<<ptr<<" "<<block_<<' '<<this<<std::endl;
     MakeMetaTable(block_,ptr,size); // make table and append vec_block.
@@ -56,7 +70,8 @@ void Device::FreeBlock(Block* block) {
     //TODO(junzhe) to merge it
     auto tempPtr = block->mutable_data();
     //cout<<"FreeBlock: "<<block<<' '<<tempPtr<<endl;
-    Free(tempPtr);
+    // Free(tempPtr);
+    cudaFree(tempPtr);
     //cout<<"SwapGPU::Free() returned"<<endl;
     //Free(block->mutable_data());
     
