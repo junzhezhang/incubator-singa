@@ -1,23 +1,5 @@
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# =============================================================================
-""" CIFAR10 dataset is at https://www.cs.toronto.edu/~kriz/cifar.html.
-It includes 5 binary dataset, each contains 10000 images. 1 row (1 image)
-includes 1 label & 3072 pixels.  3072 pixels are 3 channels of a 32x32 image
-"""
+
+
 from __future__ import division
 from __future__ import print_function
 from builtins import zip
@@ -37,11 +19,9 @@ from singa import optimizer
 from singa import device
 from singa import tensor
 from singa.proto import core_pb2
-from caffe import caffe_net
 
-import alexnet
-import vgg
-import resnet
+import resnet3 as resnet
+import vgg3 as vgg
 
 from datetime import datetime
 import time
@@ -144,6 +124,7 @@ def train(data, net, max_epoch, get_lr, weight_decay, batch_size=100,
     num_test_batch = test_x.shape[0] // batch_size
     idx = np.arange(train_x.shape[0], dtype=np.int32)
     fileTimeLog =open("epochTimeLog.text","a")
+    duration_itr = []
     for epoch in range(1):
         np.random.shuffle(idx)
         loss, acc = 0.0, 0.0
@@ -153,9 +134,13 @@ def train(data, net, max_epoch, get_lr, weight_decay, batch_size=100,
         fileTimeLog.write('Epoch %d: ' % epoch)
         fileTimeLog.write(str(int(round(time.time()*1000))))
         fileTimeLog.write('\n')
+        tic = datetime.now()
         for b in range(10): #num_train_batch):
             print ("start of iteration %d: " %b)
             #time.sleep(1)
+            toc = datetime.now()
+            duration_itr.append(toc-tic)
+            tic = toc
             fileTimeLog.write('iteration %d: ' % b)
             fileTimeLog.write(str(int(round(time.time()*1000))))
             fileTimeLog.write('\n')
@@ -174,6 +159,9 @@ def train(data, net, max_epoch, get_lr, weight_decay, batch_size=100,
         info = '\ntraining loss = %f, training accuracy = %f, lr = %f' \
             % ((loss / num_train_batch), (acc / num_train_batch), get_lr(epoch))
         print(info)
+        print ("-----now prints duration-----")
+        for itm in duration_itr:
+          print (itm)
 
         loss, acc = 0.0, 0.0
         for b in range(0):
@@ -197,6 +185,7 @@ if __name__ == '__main__':
     parser.add_argument('data', default='cifar-10-batches-py')
     parser.add_argument('--use_cpu', action='store_true')
     parser.add_argument('batch_size',type=int, default=100)
+    parser.add_argument('depth',type=int)
     args = parser.parse_args()
     assert os.path.exists(args.data), \
         'Pls download the cifar10 dataset via "download_data.py py"'
@@ -219,11 +208,13 @@ if __name__ == '__main__':
               use_cpu=args.use_cpu,batch_size=args.batch_size)
     elif args.model == 'vgg':
         train_x, test_x = normalize_for_vgg(train_x, test_x)
-        net = vgg.create_net(args.use_cpu)
+        depth = args.depth
+        net = vgg.create_net(depth,args.use_cpu)
         train((train_x, train_y, test_x, test_y), net, 250, vgg_lr, 0.0005,
               use_cpu=args.use_cpu,batch_size=args.batch_size)
     else:
         train_x, test_x = normalize_for_alexnet(train_x, test_x)
-        net = resnet.create_net(args.use_cpu)
+        depth = args.depth
+        net = resnet.create_net(depth,args.use_cpu)
         train((train_x, train_y, test_x, test_y), net, 200, resnet_lr, 1e-4,
               use_cpu=args.use_cpu,batch_size=args.batch_size)
