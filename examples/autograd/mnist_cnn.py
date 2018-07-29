@@ -21,9 +21,10 @@ import numpy as np
 import argparse
 import os
 
+from singa import device
 from singa import tensor
 from singa import autograd
-from singa import optimizer
+from singa import opt
 
 
 def load_data(path):
@@ -72,11 +73,18 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Train CNN over MNIST')
     parser.add_argument('file_path', type=str, help='the dataset path')
+    parser.add_argument('--use_cpu', action='store_true')
     args = parser.parse_args()
 
     assert os.path.exists(args.file_path), \
-        'Pls download the MNIST dataset from ' \
-        'https://github.com/mnielsen/neural-networks-and-deep-learning/raw/master/data/mnist.pkl.gz'
+        'Pls download the MNIST dataset from https://s3.amazonaws.com/img-datasets/mnist.npz'
+
+    if args.use_cpu:
+        print('Using CPU')
+        dev = device.get_default_device()
+    else:
+        print('Using GPU')
+        dev = device.create_cuda_gpu()
 
     train, test = load_data(args.file_path)
 
@@ -84,7 +92,7 @@ if __name__ == '__main__':
     num_classes = 10
     epochs = 1
 
-    sgd = optimizer.SGD(0.05)
+    sgd = opt.SGD(lr=0.01)
 
     x_train = preprocess(train[0])
     y_train = to_categorical(train[1], num_classes)
@@ -97,37 +105,49 @@ if __name__ == '__main__':
     print('the shape of testing label is', y_test.shape)
 
     # operations initialization
-    conv1 = autograd.Conv2d(3, 32)
-    conv2 = autograd.Conv2d(32, 32)
+    conv1 = autograd.Conv2d(1, 32, 3, padding=1, bias=False)
+    bn1 = autograd.BatchNorm2d(32)
+    conv21 = autograd.Conv2d(32, 16, 3, padding=1)
+    conv22 = autograd.Conv2d(32, 16, 3, padding=1)
+    bn2 = autograd.BatchNorm2d(32)
     linear = autograd.Linear(32 * 28 * 28, 10)
+    pooling1 = autograd.MaxPool2d(3, 1, padding=1)
+    pooling2 = autograd.AvgPool2d(3, 1, padding=1)
 
     def forward(x, t):
         y = conv1(x)
         y = autograd.relu(y)
-        y = conv2(y)
+        y = bn1(y)
+        y = pooling1(y)
+        y1 = conv21(y)
+        y2 = conv22(y)
+        y = autograd.cat((y1, y2), 1)
+        y = bn2(y)
         y = autograd.relu(y)
-        y = autograd.max_pool_2d(y)
+        y = bn2(y)
+        y = pooling2(y)
         y = autograd.flatten(y)
         y = linear(y)
-        y = autograd.soft_max(y)
-        loss = autograd.cross_entropy(y, t)
+        loss = autograd.softmax_cross_entropy(y, t)
         return loss, y
 
     autograd.training = True
     for epoch in range(epochs):
         for i in range(batch_number):
-            inputs = tensor.Tensor(data=x_train[i * 100:(1 + i) * 100, :])
-            targets = tensor.Tensor(data=y_train[i * 100:(1 + i) * 100, :])
+            inputs = tensor.Tensor(device=dev, data=x_train[
+                                   i * 100:(1 + i) * 100], stores_grad=False)
+            targets = tensor.Tensor(device=dev, data=y_train[
+                                    i * 100:(1 + i) * 100], requires_grad=False, stores_grad=False)
 
             loss, y = forward(inputs, targets)
 
-            accuracy_rate = accuracy(autograd.ctensor2numpy(
-                y.data), autograd.ctensor2numpy(targets.data))
+            accuracy_rate = accuracy(tensor.to_numpy(y),
+                                     tensor.to_numpy(targets))
             if (i % 5 == 0):
                 print('accuracy is:', accuracy_rate, 'loss is:',
-                      autograd.ctensor2numpy(loss.data)[0])
+                      tensor.to_numpy(loss)[0])
 
-            in_grads = autograd.backward(loss)
+            for p, gp in autograd.backward(loss):
+                sgd.update(p, gp)
 
-            for param in in_grads:
-                sgd.apply(0, in_grads[param], param, '')
+            sgd.step()

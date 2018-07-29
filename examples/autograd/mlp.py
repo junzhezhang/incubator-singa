@@ -26,6 +26,8 @@ import numpy as np
 
 if __name__ == '__main__':
 
+    autograd.training = True
+
     # prepare training data in numpy array
 
     # generate the boundary
@@ -84,10 +86,8 @@ if __name__ == '__main__':
         x = autograd.add_bias(x, b1)
         x = autograd.soft_max(x)
         loss = autograd.cross_entropy(x, target)
-        in_grads = autograd.backward(loss)
-
-        for param in in_grads:
-            sgd.apply(0, in_grads[param], param, '')
+        for p, gp in autograd.backward(loss):
+            sgd.apply(0, gp, p, '')
 
         if (i % 100 == 0):
             print('training loss = ', tensor.to_numpy(loss)[0])
