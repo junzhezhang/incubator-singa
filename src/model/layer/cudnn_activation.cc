@@ -96,8 +96,6 @@ const Tensor CudnnActivation::Forward(int flag, const Tensor& input) {
       buf_.push(input);
     }
   }
-  input.AppendLayer();
-  output.AppendLayer();
   return output;
 }
 
@@ -127,9 +125,6 @@ const std::pair<Tensor, vector<Tensor>> CudnnActivation::Backward(
         this->desc_, dxblock->mutable_data()));
 #endif
   }, {grad.block(), inout.block()}, {dx.block()});
-  dx.AppendLayer();
-  grad.AppendLayer();
-  inout.AppendLayer(); //TODO(junzhe) inout
   return std::make_pair(dx, param_grad);
 }
 }  // namespace singa

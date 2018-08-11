@@ -63,8 +63,6 @@ const Tensor Activation::Forward(int flag, const Tensor& input) {
     if (flag & kTrain) buf_.push(input);
   } else
     LOG(FATAL) << "Unkown activation: " << mode_;
-  ///append info for tensor for swap
-
   return output;
 }
 

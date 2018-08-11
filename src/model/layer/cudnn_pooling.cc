@@ -117,9 +117,6 @@ const Tensor CudnnPooling::Forward(int flag, const Tensor &input) {
     buf_.push(input);
     buf_.push(output);
   }
-  input.AppendLayer();
-  output.AppendLayer();
-
   return output;
 }
 
@@ -145,11 +142,6 @@ const std::pair<Tensor, vector<Tensor>> CudnnPooling::Backward(
                          dyblock->data(), this->x_desc_, xblock->data(), &beta,
                          this->x_desc_, dxblock->mutable_data());
   }, {grad.block(), y.block(), x.block()}, {dx.block()});
-
-  grad.AppendLayer();
-  dx.AppendLayer();
-  y.AppendLayer();
-  x.AppendLayer();
 
   return std::make_pair(dx, param_grad);
 }

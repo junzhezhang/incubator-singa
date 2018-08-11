@@ -76,18 +76,6 @@ Tensor::Tensor(Tensor &&in)
   in.block_ = nullptr;
 }
 
-void Tensor::AppendLayer() const {
-  stringstream strm;
-  strm<<block_;
-  string tempStr = strm.str();
-  stringstream strm4;
-  auto t2 = (std::chrono::system_clock::now()).time_since_epoch().count();
-  strm4<<t2;
-  string tempStr4 = strm4.str();
-  string temp = "Layer "+tempStr+" "+tempStr4;
-  device_->AppendInfo(temp);
-}
-
 void Tensor::SetBlock(Block *block) {
   LOG(WARNING) << "Pls avoid using this function, which may have side-effect.";
   if (block_ != nullptr)
